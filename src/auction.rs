@@ -72,11 +72,11 @@ pub async fn update_auction(data: web::Data<AppState>, id: web::Path<String>, au
     // Update the auction
     match data.database.auctions.find_one_and_replace(
         doc! {"id": auction_uuid}, 
-        auction.into_inner(), 
+        auction.clone(), 
         None
     ).await {
         Ok(result) => match result {
-            Some(auction) => HttpResponse::Ok().json(APIResponse::success(auction)),
+            Some(_) => HttpResponse::Ok().json(APIResponse::success(auction)),
             None => HttpResponse::NotFound().json(APIResponse::fail("Auction not found"))
         },
         Err(e) => {
@@ -165,7 +165,7 @@ pub async fn get_auction(data: web::Data<AppState>, id: web::Path<String>) -> im
 #[cfg(test)]
 mod auction_tests {
     use super::*;
-    use actix_web::{http::StatusCode, test};
+    use actix_web::{body, http::StatusCode, test};
     use serde_json::Value;
 
     /// Test creating a new auction
@@ -217,6 +217,24 @@ mod auction_tests {
 
         // Insert into DB
         app_state.database.auctions.insert_one(new_auction.clone(), None).await.unwrap();
+
+        // Update the auction
+        let updated_auction = Auction {
+            starting_price: 200,
+            .. new_auction
+        };
+
+        // Send a PATCH request to /auctions/{id}
+        let req = test::TestRequest::patch()
+            .uri(&format!("/auctions/{}", new_auction.id))
+            .set_json(&updated_auction)
+            .to_request();
+
+        // Sanity Check the Response
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let body: APIResponse<Auction> = test::read_body_json(resp).await;
+        assert_eq!(body.message, updated_auction);
     }
 
     /// Test deleting an auction
