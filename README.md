@@ -1,5 +1,3 @@
-# BE-ETHERFI
-
 ## How to run
 ### Docker:
 ```bash
@@ -11,4 +9,9 @@ OR
 ### Rust
 ```bash
 cargo run
+```
+
+## .ENV SETUP
+```
+ENDPOINT_MONGODB = "TO_BE_FILLED"
 ```
