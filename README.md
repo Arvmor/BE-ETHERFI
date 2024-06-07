@@ -10,6 +10,13 @@ OR
 ```bash
 cargo run
 ```
+& built-in rust test cases
+```bash
+cargo test
+```
+
+## Docs
+Check out <a href="/docs">/docs</a> for API Documentation
 
 ## Endpoint
-`http://localhost:1337`
+URL: `http://localhost:1337`
