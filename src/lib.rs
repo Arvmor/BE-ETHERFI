@@ -4,7 +4,7 @@ pub use actix_cors::Cors;
 pub use dotenv::dotenv;
 pub use tracing::level_filters::LevelFilter;
 pub use tracing_subscriber::{fmt::layer, Registry, layer::SubscriberExt, Layer, util::SubscriberInitExt};
-pub use mongodb::{options::{ClientOptions, ResolverConfig}, Client, Collection, bson::{Uuid, doc}};
+pub use mongodb::{options::{ClientOptions, ResolverConfig, FindOneAndUpdateOptions, ReturnDocument}, Client, Collection, bson::{Uuid, doc, Bson}};
 pub use serde::{Serialize, Deserialize};
 pub use chrono::{Utc, Duration};
 pub use tracing::{error, info};
@@ -22,3 +22,6 @@ pub use db::*;
 
 pub mod helper;
 pub use helper::*;
+
+pub mod bid;
+pub use bid::*;

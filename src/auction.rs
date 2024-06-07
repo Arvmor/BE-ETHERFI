@@ -5,33 +5,15 @@ use crate::*;
 pub struct Auction {
     #[serde(default)]
     pub id: Uuid,
-    #[serde(default)]
-    pub status: AuctionStatus,
     pub name: String,
     #[serde(default)]
-    pub bids: HashMap<u64, Bid>,
+    pub bids: Vec<Bid>,
     #[serde(default)]
     pub starting_price: u64,
+    #[serde(default)]
+    pub winner: Option<Bid>,
     pub end_date: i64,
 }
-
-/// Auction status
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub enum AuctionStatus {
-    #[default]
-    Active,
-    Ended,
-}
-
-/// Bid struct
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct Bid {
-    pub id: Uuid,
-    pub name: String,
-    pub amount: u64,
-    pub timestamp: i64,
-}
-
 
 /// Create new auction
 #[post("/auctions")]

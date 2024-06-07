@@ -42,6 +42,8 @@ async fn main() -> Result<()> {
             .service(create_auction)
             .service(update_auction)
             .service(delete_auction)
+            // Bid routes
+            .service(create_bid)
     })
     .bind("0.0.0.0:1337")?
     .run()
