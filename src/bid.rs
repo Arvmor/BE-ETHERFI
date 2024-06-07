@@ -38,14 +38,16 @@ pub async fn create_bid(data: web::Data<AppState>,mut bid: web::Json<Bid>, aucti
         return HttpResponse::BadRequest().json(APIResponse::fail("Bid amount must be greater than 0"));
     }
 
-    // Assign a Timestamp
+    // Assign a Timestamp & UUID
+    bid.id = Uuid::new();
     bid.timestamp = Utc::now().timestamp();
 
     // Insert into DB
     match data.database.auctions.find_one_and_update(
         doc! { 
             "id": auction_uuid,
-            "end_date": { "$gt": Utc::now().timestamp() },
+            "end_date": { "$gte": Utc::now().timestamp() },
+            "starting_price": { "$lte": bid.amount },
             // winner is null or winner amount is less than bid amount
             "$or": [
                 { "winner": { "$eq": null } },
@@ -68,4 +70,47 @@ pub async fn create_bid(data: web::Data<AppState>,mut bid: web::Json<Bid>, aucti
         }
     }
 
+}
+
+#[cfg(test)]
+pub mod bid_tests {
+    use super::*;
+    use actix_web::test;
+
+    /// Test if bid can be created
+    #[actix_web::test]
+    async fn test_create_bid() {
+        dotenv().ok();
+        let app_state = web::Data::new(AppState::new().await);
+        let app = test::init_service(App::new().service(create_bid).app_data(app_state.clone())).await;
+        
+        // Test Auction
+        let auction = Auction {
+            name: "Test Auction for Bidding".to_string(),
+            starting_price: 100,
+            end_date: Utc::now().timestamp() + 1000,
+            .. Default::default()
+        };
+        app_state.database.auctions.insert_one(auction.clone(), None).await.unwrap();
+
+        // Test Bid
+        let bid = Bid {
+            name: "Test Bid".to_string(),
+            amount: 100,
+            ..Default::default()
+        };
+
+        // Send a POST request to /bids/{auction_id}
+        let req = test::TestRequest::post()
+            .uri(&format!("/bids/{}", auction.id))
+            .set_json(&bid)
+            .to_request();
+
+        // Sanity Check the Response
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        let body: APIResponse<Auction> = test::read_body_json(resp).await;
+        assert_ne!(body.message.winner, None);
+    }
 }
