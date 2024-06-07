@@ -58,6 +58,31 @@ Response: <br>
   }
 }
 ```
+#### PATCH `/auctions/{uuid}` - Update an Auction
+```bash
+curl --request PATCH \
+  --url http://localhost:1337/auctions/718589a8-28c4-4db2-9c76-0d688040debc \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "name": "TEst",
+    "starting_price": 1000,
+    "end_date": 12333333333
+}'
+```
+Response: <br>
+```json
+{
+  "status": 0,
+  "message": {
+    "id": "59384b6e-92bb-45a1-a04d-52c160ac0913",
+    "name": "TEst",
+    "bids": [],
+    "starting_price": 1000,
+    "winner": null,
+    "end_date": 12333333333
+  }
+}
+```
 #### GET `/auctions` - Get all Auctions
 ```bash
 curl --request GET \
