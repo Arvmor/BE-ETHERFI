@@ -52,13 +52,17 @@ pub async fn update_auction(data: web::Data<AppState>, id: web::Path<String>, au
     };
 
     // Update the auction
-    match data.database.auctions.find_one_and_replace(
+    match data.database.auctions.find_one_and_update(
         doc! {"id": auction_uuid}, 
-        auction.clone(), 
-        None
+        doc! {
+            "$set": {"name": &auction.name},
+            "$set": {"starting_price": auction.starting_price as i64},
+            "$set": {"end_date": &auction.end_date},
+        }, 
+        Some(FindOneAndUpdateOptions::builder().return_document(ReturnDocument::After).build())
     ).await {
         Ok(result) => match result {
-            Some(_) => HttpResponse::Ok().json(APIResponse::success(auction)),
+            Some(auction) => HttpResponse::Ok().json(APIResponse::success(auction)),
             None => HttpResponse::NotFound().json(APIResponse::fail("Auction not found"))
         },
         Err(e) => {
