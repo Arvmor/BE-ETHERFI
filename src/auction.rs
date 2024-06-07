@@ -51,13 +51,16 @@ pub async fn update_auction(data: web::Data<AppState>, id: web::Path<String>, au
         Err(_) => return HttpResponse::BadRequest().json(APIResponse::fail("Invalid Auction ID"))
     };
 
+    // Sanity check for Auction End Date
+    if auction.end_date <= Utc::now().timestamp() {
+        return HttpResponse::BadRequest().json(APIResponse::fail("End date cannot be in the past"));
+    }
+
     // Update the auction
     match data.database.auctions.find_one_and_update(
         doc! {"id": auction_uuid}, 
         doc! {
-            "$set": {"name": &auction.name},
-            "$set": {"starting_price": auction.starting_price as i64},
-            "$set": {"end_date": &auction.end_date},
+            "$set": {"end_date": &auction.end_date, "starting_price": auction.starting_price as i64, "name": &auction.name},
         }, 
         Some(FindOneAndUpdateOptions::builder().return_document(ReturnDocument::After).build())
     ).await {
