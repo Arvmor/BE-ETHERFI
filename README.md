@@ -11,7 +11,5 @@ OR
 cargo run
 ```
 
-## .ENV SETUP
-```
-ENDPOINT_MONGODB = "TO_BE_FILLED"
-```
+## Endpoint
+`http://localhost:1337`
