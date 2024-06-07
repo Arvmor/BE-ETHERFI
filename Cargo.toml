@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 actix-cors = "0.7.0"
 actix-web = "4.6.0"
+chrono = "0.4.38"
 dotenv = "0.15.0"
 mongodb = "2.8.2"
 serde = "1.0.203"

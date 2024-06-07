@@ -34,7 +34,14 @@ async fn main() -> Result<()> {
             .wrap(Cors::permissive())
             .wrap(middleware::Logger::default())
             .app_data(app_state.clone())
+            // Base route
             .service(index)
+            // Auction routes
+            .service(get_auctions)
+            .service(get_auction)
+            .service(create_auction)
+            .service(update_auction)
+            .service(delete_auction)
     })
     .bind("0.0.0.0:1337")?
     .run()
@@ -52,7 +59,7 @@ mod base_tests {
     #[actix_web::test]
     async fn test_index() {
         
-        // Send a Get request to / 
+        // Send a GET request to / 
         let app = test::init_service(App::new().service(index)).await;
         let req = test::TestRequest::get().uri("/").to_request();
         
